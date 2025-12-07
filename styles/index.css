@@ -1,0 +1,53 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    line-height: 1.5;
+    font-family: "Montserrat", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+header{
+    text-align:center;
+    font-size: 3rem;
+    font-weight:semi-bold;
+}
+main{
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    justify-items:center;
+}
+#map{
+    min-width: 400px;
+    min-height:400px;
+    margin: 0.5rem 1rem;
+    padding: 0.5rem;
+}
+#about{
+    max-width: 60ch;
+}
+#about p{
+    font-size: 1rem;
+    margin:0.5rem;
+    text-align:center;
+}
+
+@media(min-width: 768px){
+    main{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-items:center;
+    }
+    #map{
+        min-width: 600px;
+        min-height:600px;
+    }
+    #about p{
+        font-size: 1.2rem;
+        margin:0.5rem;
+        text-align:left;
+    }
+}

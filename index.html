@@ -4,28 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Mapping Data</title>
 </head>
 <body>
     <header>
-        NYC Resources 
+        </h1>
+            NYC Resources 
+        <h1>   
     </header>
-    <section>
-        
-    </section>
 
-    <iframe 
+    <main>
+        <iframe 
         id="map"
         title="NYC resources against overexposure to the sun"
-        width="500"
-        height="600"
         allow="fullscreen"
         loading="lazy"
-        src="../map/map.html">
+        src="./map/map.html">
     </iframe>
 
-    <section></section>
+    <section id="about">
+        <p>
+            This map showcases the resources NYC has for its streets to combat against overexposure to the sun.
+        </p>
+        <p>
+            Tree & drinking fountain data from 
+            <a href="https://opendata.cityofnewyork.us/" target="_blank">NYC Open Data APIs</a>.
+        </p>
+        <p>
+            NYC's surface temperature from 
+            <a href="https://council.nyc.gov/data/heat/" target="_blank">NYC Council's Data team</a>
+            .
+        </p>
+    </section>
+    </main>
 
-    <footer></footer>
+    <footer>
+    </footer>
 </body>
 </html>
