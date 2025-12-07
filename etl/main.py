@@ -1,6 +1,7 @@
-from extract.extract  import read_drinking_fountains_data, read_tree_census_data, read_nyc_map, open_map
+from extract.extract  import read_drinking_fountains_data, read_tree_census_data
 from transform.transform import transform_drinking_fountains_data, transform_trees_census_data 
 from load.load import load_data
+from load.export import exportGeo
 import time
 import asyncio
 
@@ -20,15 +21,25 @@ async def test_ETL_Tree():
     await load_data('Trees', tree)
     return 0
 
+def ETE_Fountain():
+    f = read_drinking_fountains_data()
+    f = transform_drinking_fountains_data(f)
+    exportGeo(f,"Fountains")
+    return 0
+
+def ETE_Tree():
+    t = read_tree_census_data()
+    t = transform_trees_census_data(t)
+    exportGeo(t,"Trees")
+    return 0
+
 def main():
     print("Starting ETL process...")
     start = time.time()
-
-    asyncio.run(test_ETL_Fountain())
+    ETE_Fountain()
     stop = time.time()
     print(f"Execution time: {round(stop - start)} Second(s)")
-    asyncio.run(test_ETL_Tree())
-
+    ETE_Tree()
     end = time.time()
     print(f"Execution time: {round(end - stop)} Second(s)")
     
@@ -36,5 +47,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# !NOTICE: Will move from sqlite to spatialite to hold geo data
 # !ISSUE: Error using tree functions with docker
