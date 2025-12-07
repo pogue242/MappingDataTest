@@ -1,2 +1,2 @@
 def exportGeo(df, fileName):
-    df.to_file(f"{fileName}.geojson", driver='GeoJSON')
+    df.to_file(f"assets/{fileName}.geojson", driver='GeoJSON')

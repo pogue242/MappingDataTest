@@ -5,4 +5,4 @@
 __pycache__/
 *.db*
 1.0.0
-*.geojson
+assets/*.geojson
