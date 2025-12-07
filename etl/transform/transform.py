@@ -57,7 +57,7 @@ def transform_drinking_fountains_data(data):
     fountainsCleaned['coordinates'] = fountainsCleaned['the_geom.coordinates'].apply(lambda coords: Point(coords) if coords else None)
     fountainsCleaned = gpd.GeoDataFrame(fountainsCleaned, geometry='coordinates')
     fountainsCleaned = fountainsCleaned.drop(columns=['the_geom.coordinates', 'the_geom.type'])
-    fountainsCleaned = fountainsCleaned.set_crs('EPSG:4326 ')
+    fountainsCleaned = fountainsCleaned.set_crs('EPSG:4326')
     return fountainsCleaned
 
 def transform_trees_census_data(data):
@@ -67,5 +67,5 @@ def transform_trees_census_data(data):
     treesCleaned = treesCleaned.rename(columns=renameTreeColumns)
     treesCleaned = treesCleaned.astype(typeCastTreeColumns)
     treesCleaned['name'] = treesCleaned['name'].fillna('Unknown')
-    treesCleaned = treesCleaned.set_crs('EPSG:4326 ')
+    treesCleaned = treesCleaned.set_crs('EPSG:4326')
     return treesCleaned  

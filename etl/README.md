@@ -4,15 +4,13 @@
 a Python script to:
 - Extract data from NYC Open data APIs & ultilizize Google Earth engine's images on NYC's surface temperature
 - Transform that data to fit the business requirments
-- Load that data into a SQL database
+- export an GeoJson file
 
 ### Technologies
 - Python
 - Pandas
 - GeoPandas
 - Requests
-- SQLAlchemy
-- Rasterio
 
 ### How to run : With Docker
 - Make sure you have Docker desktop downloaded, if you don't go [here](https://www.docker.com/products/docker-desktop/)
@@ -20,12 +18,12 @@ a Python script to:
 - run this command in your terminal:
     ```console
 
-        docker build --secret id=API_TOKEN,env=API_TOKEN -t [imageName]:latest  ./etl 
+        docker build --secret id=API_TOKEN,env=API_TOKEN -t etl:latest  ./etl 
 
     ```
 - Then run this command to execute the program:
     ```console
 
-        docker run [imageName]:latest
+        docker run etl:latest
 
     ```
