@@ -49,6 +49,13 @@ typeCastTreeColumns = {
     'district':'string',
     'borough':'category'
 }
+fillValues ={
+    'Queens':'Q',
+    'Brooklyn':'B',
+    'Bronx': 'X',
+    'Manhattan':'M',
+    'Staten Island':'R'
+}
 
 def transform_drinking_fountains_data(data):
     fountainsCleaned = data.drop(dropFountainColumns, axis=1)
@@ -62,10 +69,19 @@ def transform_drinking_fountains_data(data):
 
 def transform_trees_census_data(data):
     treesCleaned = data.drop(dropTreeColumns,axis=1)
+    treesCleaned['latitude'] = treesCleaned['latitude'].apply(lambda x: x[:6])
+    treesCleaned['longitude'] = treesCleaned['longitude'].apply(lambda x: x[:6])
+    treesCleaned['boroname'] = treesCleaned['boroname'].replace(fillValues)
     treesCleaned = gpd.GeoDataFrame(treesCleaned, geometry=gpd.points_from_xy(treesCleaned.longitude, treesCleaned.latitude))
     treesCleaned = treesCleaned.drop(columns=['latitude','longitude'])
     treesCleaned = treesCleaned.rename(columns=renameTreeColumns)
     treesCleaned = treesCleaned.astype(typeCastTreeColumns)
     treesCleaned['name'] = treesCleaned['name'].fillna('Unknown')
+    treesCleaned = extra_transform_trees_census_data(treesCleaned)
     treesCleaned = treesCleaned.set_crs('EPSG:4326')
     return treesCleaned  
+
+def extra_transform_trees_census_data(data):
+    treeCleaned = data[data['status'] != 'Dead']
+    treeCleaned = treeCleaned.drop(columns=['status','updated_at','name'])
+    return treeCleaned
