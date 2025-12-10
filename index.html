@@ -79,6 +79,7 @@
         font-size: 12px;
       }
 
+      /* Legend styles */
       .legend {
         margin-top: 6px;
         padding-top: 4px;
@@ -158,7 +159,6 @@
 
       const HEAT_MIN_F = 66.96;
       const HEAT_MAX_F = 133.63;
-      const TREES_MIN_ZOOM = 14;
 
       const DATA_CONFIG = {
         fountains: {
@@ -200,10 +200,10 @@
       }
 
       function createOverlayLayers() {
-        fountainsLayer = L.layerGroup();
+        fountainsLayer = L.layerGroup(); 
         heat2015Layer = L.layerGroup();
-        heat2025Layer = L.layerGroup().addTo(map);
-        treesLayer = L.layerGroup();
+        heat2025Layer = L.layerGroup().addTo(map); // 2025 ON by default
+        treesLayer = L.layerGroup(); // 
       }
 
       function createHeatOverlays() {
@@ -242,6 +242,7 @@
             "custom-layer-control leaflet-bar"
           );
 
+          // Legend labels based on shared min/max
           const heatLabel1 = Math.round(HEAT_MIN_F);
           const heatLabel2 = Math.round(
             HEAT_MIN_F + (HEAT_MAX_F - HEAT_MIN_F) * 0.25
@@ -309,19 +310,10 @@
                 btn.classList.remove("active");
                 if (map.hasLayer(layer)) map.removeLayer(layer);
               } else {
-                if (key === "trees" && map.getZoom() < TREES_MIN_ZOOM) {
-                  alert(
-                    `Zoom in closer (zoom ${TREES_MIN_ZOOM}+ ) to load street trees.`
-                  );
-                  btn.classList.remove("active");
-                  if (map.hasLayer(layer)) map.removeLayer(layer);
-                  return;
-                }
-
                 btn.classList.add("active");
                 if (!map.hasLayer(layer)) map.addLayer(layer);
 
-                if (layer.getLayers && layer.getLayers().length === 0 && DATA_CONFIG[key]) {
+                if (layer.getLayers().length === 0 && DATA_CONFIG[key]) {
                   loadGeoJsonLayer(key, layer, key);
                 }
 
@@ -381,27 +373,17 @@
                 let popup = `<strong>${config.title}</strong><br>`;
 
                 if (key === "fountains") {
-                  const boroughNames = {
-                    M: "Manhattan",
-                    Q: "Queens",
-                    B: "Brooklyn",
-                    X: "Bronx",
-                    R: "Staten Island"
-                  };
-
                   const updated = p.updated_at
                     ? new Date(p.updated_at).toLocaleDateString()
                     : null;
-                  const boroughFull =
-                    boroughNames[p.borough] || p.borough || "Unknown";
-
                   if (updated)
                     popup += `<b>Updated:</b> ${updated}<br>`;
                   if (p.fountain_id)
                     popup += `<b>ID:</b> ${p.fountain_id}<br>`;
                   if (p.located_at)
                     popup += `<b>Location:</b> ${p.located_at}<br>`;
-                  popup += `<b>Borough:</b> ${boroughFull}<br>`;
+                  if (p.borough)
+                    popup += `<b>Borough:</b> ${p.borough}<br>`;
                   if (p.department)
                     popup += `<b>Department:</b> ${p.department}<br>`;
                   if (p.status)
