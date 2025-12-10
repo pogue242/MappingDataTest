@@ -121,7 +121,6 @@
         margin: 2px 0 2px 0;
         border-radius: 2px;
         border: 1px solid #ffffff33;
-        /* muted, no-green palette matching PNGs */
         background: linear-gradient(
           to right,
           #5e4fa2,
@@ -158,7 +157,6 @@
       let heat2025Layer;
       let treesLayer;
 
-      // Shared color scale (from Python output)
       const HEAT_MIN_F = 66.96;
       const HEAT_MAX_F = 133.63;
 
@@ -170,7 +168,7 @@
           style: { radius: 4, weight: 1, fillOpacity: 0.9 }
         },
         trees: {
-          url: "assets/Trees_s.geojson",
+          url: "assets/Trees.geojson",
           color: "#7e3073",
           title: "Street Tree",
           style: { radius: 5, weight: 1, fillOpacity: 0.9 }
@@ -182,7 +180,6 @@
         createOverlayLayers();
         createHeatOverlays();
         createLayerToggleControl();
-        // Do NOT auto-load trees; only 2025 heat on by default
       }
 
       function initMap() {
@@ -203,10 +200,10 @@
       }
 
       function createOverlayLayers() {
-        fountainsLayer = L.layerGroup(); // start OFF
-        heat2015Layer = L.layerGroup(); // start OFF
+        fountainsLayer = L.layerGroup(); 
+        heat2015Layer = L.layerGroup();
         heat2025Layer = L.layerGroup().addTo(map); // 2025 ON by default
-        treesLayer = L.layerGroup(); // trees OFF by default
+        treesLayer = L.layerGroup(); // 
       }
 
       function createHeatOverlays() {
@@ -299,7 +296,6 @@
             trees: treesLayer
           };
 
-          // make sure 2025 heat layer is present if its button is active
           if (!map.hasLayer(heat2025Layer)) {
             map.addLayer(heat2025Layer);
           }
@@ -311,20 +307,16 @@
               const isActive = btn.classList.contains("active");
 
               if (isActive) {
-                // turn OFF this layer
                 btn.classList.remove("active");
                 if (map.hasLayer(layer)) map.removeLayer(layer);
               } else {
-                // turn ON this layer
                 btn.classList.add("active");
                 if (!map.hasLayer(layer)) map.addLayer(layer);
 
-                // lazy-load GeoJSON if needed
                 if (layer.getLayers().length === 0 && DATA_CONFIG[key]) {
                   loadGeoJsonLayer(key, layer, key);
                 }
 
-                // make heat layers mutually exclusive
                 if (key === "heat2015") {
                   const otherBtn = container.querySelector(
                     '.toggle-btn[data-layer="heat2025"]'
@@ -381,7 +373,6 @@
                 let popup = `<strong>${config.title}</strong><br>`;
 
                 if (key === "fountains") {
-                  // cleaner, labeled popup for fountains
                   const updated = p.updated_at
                     ? new Date(p.updated_at).toLocaleDateString()
                     : null;
@@ -398,7 +389,6 @@
                   if (p.status)
                     popup += `<b>Status:</b> ${p.status}<br>`;
                 } else {
-                  // generic fallback (e.g., trees)
                   Object.keys(p).forEach((propKey) => {
                     if (p[propKey] && propKey.length < 20) {
                       popup += `<b>${propKey}:</b> ${p[propKey]}<br>`;
