@@ -69,8 +69,6 @@ def transform_drinking_fountains_data(data):
 
 def transform_trees_census_data(data):
     treesCleaned = data.drop(dropTreeColumns,axis=1)
-    treesCleaned['latitude'] = treesCleaned['latitude'].apply(lambda x: x[:6])
-    treesCleaned['longitude'] = treesCleaned['longitude'].apply(lambda x: x[:6])
     treesCleaned['boroname'] = treesCleaned['boroname'].replace(fillValues)
     treesCleaned = gpd.GeoDataFrame(treesCleaned, geometry=gpd.points_from_xy(treesCleaned.longitude, treesCleaned.latitude))
     treesCleaned = treesCleaned.drop(columns=['latitude','longitude'])
