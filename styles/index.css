@@ -2,6 +2,7 @@
     --bg-color: #030626ff;
     --font:"Montserrat", sans-serif;
     --font-color-2:#ffffff;
+    --font-color-caption:#6c6c6c;
 }
 *,
 *::before,
@@ -22,22 +23,28 @@ header{
 }
 main{
     display: grid;
-    grid-template-rows: 1fr max-content 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-items:center;
+}
+figure{
+    display:grid;
     justify-items:center;
 }
 #map{
     width:clamp(350px, 80vw, 600px);
     min-height:400px;
-    margin: 0.5rem 1rem;
+    margin: 0.1rem 1rem;
     padding: 0.5rem;
 }
 #about{
     max-width:clamp(38ch, 80vw, 50ch);
 }
 #about p{
-    font-size: 1rem;
-    margin:0.5rem;
-    text-align:left;
+    color: var(--font-color-caption);
+    font-size: 0.9rem;
+    margin:0rem 0.5rem;
+    text-align:center;
+    line-height:1rem;
 }
 footer{
     background-color:var(--bg-color);
@@ -45,6 +52,7 @@ footer{
 footer p{
     font-size:0.9rem;
     margin:auto;
+    padding:0.25rem 0rem;
     max-width: 38ch;
     color: var(--font-color-2)
 }
@@ -53,27 +61,31 @@ footer p>a{
 }
 
 @media(min-width: 768px){
-    main{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: max-content 1fr;
-        justify-items:center;
-    }
     header{
         font-size: 3rem;
     }
+    main{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows:1fr;
+        justify-items:center;
+    }
     #map{
-        min-width: 600px;
-        min-height:600px;
-        grid-row: span 2;
+        width: clamp(500px, 45vw, 800px);
+        height:clamp(500px, 70vh, 600px);
+        margin: 0.1rem 1rem;
     }
     #about p{
-        font-size: 1.2rem;
-        margin:0.5rem;
-        text-align:left;
+        font-size: 1rem;
+        margin:0rem 0.5rem;
     }
     #about{
     max-width: 60ch;
+    }
+    footer{
+        position:absolute;
+        bottom:0px;
+        width:100%;
     }
     footer p{
         font-size:0.9rem;

@@ -4,46 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/index.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect"  href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Mapping Data</title>
+    <title>NYC Resources Map</title>
 </head>
 <body>
     <header>
         </h1>
-            NYC Resources 
+            NYC Resources Map
         <h1>   
     </header>
 
     <main>
-        <iframe 
-            id="map"
-            title="NYC resources against overexposure to the sun"
-            allow="fullscreen"
-            loading="lazy"
-            src="./map/map.html">
-        </iframe>
-        <section id="about">
-            <p>
-                This map showcases the resources NYC has for it's streets 
-                to combat against overexposure to the sun.
-            </p>
-        </section>
+        <figure>
+            <iframe 
+                id="map"
+                title="NYC resources against overexposure to the sun"
+                allow="fullscreen"
+                loading="lazy"
+                allow="fullscreen"
+                src="./map/map.html">
+            </iframe>
+            <figcaption id="about">
+                <p>
+                    A map that showcases resources NYC streets have 
+                    to combat against overexposure to the sun.
+                </p>
+            </figcaption>
+        </figure>
 
         <section id="map-data">
+            <p id="take-away"></p>
             <div></div>
         </section>
 
     </main>
+
     <footer id="citations">
             <p>
-            Tree & drinking fountain data from 
+            Tree & drinking fountain data sourced from 
             <a href="https://opendata.cityofnewyork.us/" target="_blank">NYC Open Data APIs</a>
             .
         </p>
         <p>
-            NYC's surface temperature from 
+            NYC's surface temperature sourced from 
             <a href="https://council.nyc.gov/data/heat/" target="_blank">NYC Council's Data team</a>
             .
         </p>
