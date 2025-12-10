@@ -1,57 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/index.css">
-    <link rel="preconnect"  href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>NYC Resources Map</title>
-</head>
-<body>
-    <header>
-        </h1>
-            NYC Resources Map
-        <h1>   
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <title>NYC Layers – Leaflet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <main>
-        <figure>
-            <iframe 
-                id="map"
-                title="NYC resources against overexposure to the sun"
-                allow="fullscreen"
-                loading="lazy"
-                allow="fullscreen"
-                src="./map/map.html">
-            </iframe>
-            <figcaption id="about">
-                <p>
-                    A map that showcases resources NYC streets have 
-                    to combat against overexposure to the sun.
-                </p>
-            </figcaption>
-        </figure>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
 
-        <section id="map-data">
-            <p id="take-away"></p>
-            <div></div>
-        </section>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: #111;
+      }
 
-    </main>
+      #map {
+        width: 100%;
+        height: 100%;
+      }
 
-    <footer id="citations">
-            <p>
-            Tree & drinking fountain data sourced from 
-            <a href="https://opendata.cityofnewyork.us/" target="_blank">NYC Open Data APIs</a>
-            .
-        </p>
-        <p>
-            NYC's surface temperature sourced from 
-            <a href="https://council.nyc.gov/data/heat/" target="_blank">NYC Council's Data team</a>
-            .
-        </p>
-    </footer>
-</body>
+      .leaflet-container {
+        background: #000;
+      }
+
+      .custom-layer-control {
+        background: rgba(20, 20, 20, 0.9);
+        padding: 8px 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        color: #f2f2f2;
+        backdrop-filter: blur(12px);
+      }
+
+      .toggle-buttons {
+        display: flex;
+        gap: 6px;
+      }
+
+      .toggle-btn {
+        border-radius: 999px;
+        padding: 5px 10px;
+        cursor: pointer;
+        background: #2a2a2a;
+        color: #b3b3b3;
+        font-size: 11px;
+        border: 1px solid #333;
+        text-transform: capitalize;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .toggle-btn.active {
+        background: #1db954;
+        color: #000000;
+        border-color: #1db954;
+        font-weight: 600;
+      }
+
+      .leaflet-popup-content-wrapper {
+        background: rgba(0, 0, 0, 0.85);
+        color: #ffffff;
+        border-radius: 6px;
+      }
+
+      .leaflet-popup-tip {
+        background: rgba(0, 0, 0, 0.85);
+      }
+
+      .leaflet-popup-content {
+        margin: 8px 10px;
+        font-size: 12px;
+      }
+
+      /* Legend styles */
+      .legend {
+        margin-top: 6px;
+        padding-top: 4px;
+        border-top: 1px solid #444;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .legend-row {
+        display: flex;
+        align-items: center;
+        margin-top: 4px;
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+        border: 1px solid #ffffff;
+      }
+
+      .fountains-dot {
+        background: #1db954;
+      }
+
+      .trees-dot {
+        background: #7e3073;
+      }
+
+      .legend-heat-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .legend-swatch {
+        width: 120px;
+        height: 10px;
+        margin: 2px 0 2px 0;
+        border-radius: 2px;
+        border: 1px solid #ffffff33;
+        /* muted, no-green palette matching PNGs */
+        background: linear-gradient(
+          to right,
+          #5e4fa2,
+          #98c1d9,
+          #ffe6a8,
+          #ffbba8,
+          #d66852,
+          #511113
+        );
+      }
+
+      .legend-heat-labels {
+        display: flex;
+        justify-content: space-between;
+        width: 120px;
+      }
+
+      .legend-heat-labels span {
+        font-size: 10px;
+        color: #dddddd;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+      let map;
+      let fountainsLayer;
+      let heat2015Layer;
+      let heat2025Layer;
+      let treesLayer;
+
+      // Shared color scale (from Python output)
+      const HEAT_MIN_F = 66.96;
+      const HEAT_MAX_F = 133.63;
+
+      const DATA_CONFIG = {
+        fountains: {
+          url: "assets/Fountains.geojson",
+          color: "#1db954",
+          title: "Drinking Fountain",
+          style: { radius: 4, weight: 1, fillOpacity: 0.9 }
+        },
+        trees: {
+          url: "assets/Trees_s.geojson",
+          color: "#7e3073",
+          title: "Street Tree",
+          style: { radius: 5, weight: 1, fillOpacity: 0.9 }
+        }
+      };
+
+      function initApp() {
+        initMap();
+        createOverlayLayers();
+        createHeatOverlays();
+        createLayerToggleControl();
+        // Do NOT auto-load trees; only 2025 heat on by default
+      }
+
+      function initMap() {
+        map = L.map("map", {
+          center: [40.7128, -74.006],
+          zoom: 11,
+          zoomControl: true
+        });
+
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          {
+            maxZoom: 19,
+            attribution:
+              '&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/">CARTO</a>'
+          }
+        ).addTo(map);
+      }
+
+      function createOverlayLayers() {
+        fountainsLayer = L.layerGroup(); // start OFF
+        heat2015Layer = L.layerGroup(); // start OFF
+        heat2025Layer = L.layerGroup().addTo(map); // 2025 ON by default
+        treesLayer = L.layerGroup(); // trees OFF by default
+      }
+
+      function createHeatOverlays() {
+        const heat2015Bounds = [
+          [40.49587334505121, -74.25572953213218],
+          [40.91763237094533, -73.70003169737585]
+        ];
+
+        const heat2025Bounds = [
+          [40.49587334505121, -74.25572953213218],
+          [40.91763237094533, -73.70003169737585]
+        ];
+
+        const heat2015Overlay = L.imageOverlay(
+          "assets/heat_2015F_smooth.png",
+          heat2015Bounds,
+          { opacity: 0.5 }
+        );
+
+        const heat2025Overlay = L.imageOverlay(
+          "assets/heat_2025F_smooth.png",
+          heat2025Bounds,
+          { opacity: 0.5 }
+        );
+
+        heat2015Layer.addLayer(heat2015Overlay);
+        heat2025Layer.addLayer(heat2025Overlay);
+      }
+
+      function createLayerToggleControl() {
+        const control = L.control({ position: "topright" });
+
+        control.onAdd = function () {
+          const container = L.DomUtil.create(
+            "div",
+            "custom-layer-control leaflet-bar"
+          );
+
+          // Legend labels based on shared min/max
+          const heatLabel1 = Math.round(HEAT_MIN_F);
+          const heatLabel2 = Math.round(
+            HEAT_MIN_F + (HEAT_MAX_F - HEAT_MIN_F) * 0.25
+          );
+          const heatLabel3 = Math.round(
+            HEAT_MIN_F + (HEAT_MAX_F - HEAT_MIN_F) * 0.5
+          );
+          const heatLabel4 = Math.round(
+            HEAT_MIN_F + (HEAT_MAX_F - HEAT_MIN_F) * 0.75
+          );
+          const heatLabel5 = Math.round(HEAT_MAX_F);
+
+          container.innerHTML = `
+            <div class="toggle-buttons">
+              <button class="toggle-btn" data-layer="fountains">Fountains</button>
+              <button class="toggle-btn" data-layer="heat2015">2015 Heat</button>
+              <button class="toggle-btn active" data-layer="heat2025">2025 Heat</button>
+              <button class="toggle-btn" data-layer="trees">Trees</button>
+            </div>
+            <div class="legend">
+              <div><strong>Legend</strong></div>
+              <div class="legend-row">
+                <span class="legend-dot fountains-dot"></span>
+                <span>Fountains</span>
+              </div>
+              <div class="legend-row">
+                <span class="legend-dot trees-dot"></span>
+                <span>Trees</span>
+              </div>
+              <div class="legend-row legend-heat-row">
+                <span>Summer surface temperature (°F)</span>
+                <span class="legend-swatch"></span>
+                <div class="legend-heat-labels">
+                  <span>${heatLabel1}°</span>
+                  <span>${heatLabel2}°</span>
+                  <span>${heatLabel3}°</span>
+                  <span>${heatLabel4}°</span>
+                  <span>${heatLabel5}°</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+
+          const layerMap = {
+            fountains: fountainsLayer,
+            heat2015: heat2015Layer,
+            heat2025: heat2025Layer,
+            trees: treesLayer
+          };
+
+          // make sure 2025 heat layer is present if its button is active
+          if (!map.hasLayer(heat2025Layer)) {
+            map.addLayer(heat2025Layer);
+          }
+
+          container.querySelectorAll(".toggle-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const key = btn.getAttribute("data-layer");
+              const layer = layerMap[key];
+              const isActive = btn.classList.contains("active");
+
+              if (isActive) {
+                // turn OFF this layer
+                btn.classList.remove("active");
+                if (map.hasLayer(layer)) map.removeLayer(layer);
+              } else {
+                // turn ON this layer
+                btn.classList.add("active");
+                if (!map.hasLayer(layer)) map.addLayer(layer);
+
+                // lazy-load GeoJSON if needed
+                if (layer.getLayers().length === 0 && DATA_CONFIG[key]) {
+                  loadGeoJsonLayer(key, layer, key);
+                }
+
+                // make heat layers mutually exclusive
+                if (key === "heat2015") {
+                  const otherBtn = container.querySelector(
+                    '.toggle-btn[data-layer="heat2025"]'
+                  );
+                  if (otherBtn && otherBtn.classList.contains("active")) {
+                    otherBtn.classList.remove("active");
+                    if (map.hasLayer(heat2025Layer)) map.removeLayer(heat2025Layer);
+                  }
+                } else if (key === "heat2025") {
+                  const otherBtn = container.querySelector(
+                    '.toggle-btn[data-layer="heat2015"]'
+                  );
+                  if (otherBtn && otherBtn.classList.contains("active")) {
+                    otherBtn.classList.remove("active");
+                    if (map.hasLayer(heat2015Layer)) map.removeLayer(heat2015Layer);
+                  }
+                }
+              }
+            });
+          });
+
+          return container;
+        };
+
+        control.addTo(map);
+      }
+
+      function loadGeoJsonLayer(key, targetLayerGroup) {
+        const config = DATA_CONFIG[key];
+        if (!config) return;
+
+        fetch(config.url)
+          .then((response) => {
+            if (!response.ok) throw new Error(`Failed to load ${key} data.`);
+            return response.json();
+          })
+          .then((geojson) => {
+            const geoJsonLayer = L.geoJSON(geojson, {
+              pointToLayer: (feature, latlng) => {
+                if (key === "fountains" || key === "trees") {
+                  return L.circleMarker(latlng, {
+                    radius: config.style.radius,
+                    fillColor: config.color,
+                    color: "#ffffff",
+                    weight: config.style.weight,
+                    opacity: 1,
+                    fillOpacity: config.style.fillOpacity
+                  });
+                }
+                return L.marker(latlng);
+              },
+              onEachFeature: (feature, layer) => {
+                const p = feature.properties || {};
+                let popup = `<strong>${config.title}</strong><br>`;
+
+                if (key === "fountains") {
+                  // cleaner, labeled popup for fountains
+                  const updated = p.updated_at
+                    ? new Date(p.updated_at).toLocaleDateString()
+                    : null;
+                  if (updated)
+                    popup += `<b>Updated:</b> ${updated}<br>`;
+                  if (p.fountain_id)
+                    popup += `<b>ID:</b> ${p.fountain_id}<br>`;
+                  if (p.located_at)
+                    popup += `<b>Location:</b> ${p.located_at}<br>`;
+                  if (p.borough)
+                    popup += `<b>Borough:</b> ${p.borough}<br>`;
+                  if (p.department)
+                    popup += `<b>Department:</b> ${p.department}<br>`;
+                  if (p.status)
+                    popup += `<b>Status:</b> ${p.status}<br>`;
+                } else {
+                  // generic fallback (e.g., trees)
+                  Object.keys(p).forEach((propKey) => {
+                    if (p[propKey] && propKey.length < 20) {
+                      popup += `<b>${propKey}:</b> ${p[propKey]}<br>`;
+                    }
+                  });
+                }
+
+                layer.bindPopup(popup);
+              }
+            });
+
+            targetLayerGroup.addLayer(geoJsonLayer);
+          })
+          .catch((error) => {
+            console.error(`Error loading GeoJSON for ${key} data:`, error);
+            const btn = document.querySelector(
+              `.toggle-btn[data-layer="${key}"]`
+            );
+            if (btn) {
+              btn.disabled = true;
+              btn.classList.remove("active");
+            }
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+  </body>
 </html>
