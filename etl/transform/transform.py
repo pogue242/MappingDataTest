@@ -5,7 +5,6 @@ dropFountainColumns = [
     'painted', 'fountainco', 'fountainty', 'gispropnum','decription', 'parentid','position',
     ':id',':version',':@computed_region_f5dn_yrer',':@computed_region_yeji_bk3q',':@computed_region_sbqj_enih',':@computed_region_92fq_4b7q', ':created_at'
 ]
-
 renameFountainColumns = {
     'system':'fountain_id',
     'featuresta':'status',
@@ -13,7 +12,6 @@ renameFountainColumns = {
     'the_geom':'coordinates',
     ':updated_at':'updated_at'
 }
-
 typeCastFountainColumns = {
     'updated_at':'string',
     'fountain_id': 'string',
@@ -32,7 +30,6 @@ dropTreeColumns = [
     'st_assem', 'st_senate', 'nta', 'nta_name', 'boro_ct', 'census_tract', 'council_district',
     ':id',':version',':created_at','created_at'
 ]
-
 renameTreeColumns = {
     'tree_id':'id',
     'spc_common':'name',
@@ -40,7 +37,6 @@ renameTreeColumns = {
     'cb_num': 'district',
     ':updated_at':'updated_at'
 }
-
 typeCastTreeColumns = {
     'updated_at':'string',
     'id': 'string',
@@ -64,7 +60,13 @@ def transform_drinking_fountains_data(data):
     fountainsCleaned['coordinates'] = fountainsCleaned['the_geom.coordinates'].apply(lambda coords: Point(coords) if coords else None)
     fountainsCleaned = gpd.GeoDataFrame(fountainsCleaned, geometry='coordinates')
     fountainsCleaned = fountainsCleaned.drop(columns=['the_geom.coordinates', 'the_geom.type'])
+    fountainsCleaned = extra_transform_drinking_fountains_data(fountainsCleaned)
     fountainsCleaned = fountainsCleaned.set_crs('EPSG:4326')
+    return fountainsCleaned
+
+#to reduce file size of exported geojson files
+def extra_transform_drinking_fountains_data(data):
+    fountainsCleaned = data.drop(columns=['status','updated_at','located_at'])
     return fountainsCleaned
 
 def transform_trees_census_data(data):
@@ -79,6 +81,7 @@ def transform_trees_census_data(data):
     treesCleaned = treesCleaned.set_crs('EPSG:4326')
     return treesCleaned  
 
+#to reduce file size of exported geojson files
 def extra_transform_trees_census_data(data):
     treeCleaned = data[data['status'] != 'Dead']
     treeCleaned = treeCleaned.drop(columns=['status','updated_at','name'])
